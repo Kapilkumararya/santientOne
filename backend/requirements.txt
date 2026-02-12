@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+python-docx
+pypdf
+pytesseract
+Pillow
+yt-dlp
+openai-whisper
+langchain
+langchain-community
+langchain-huggingface
+faiss-cpu
+google-generativeai
