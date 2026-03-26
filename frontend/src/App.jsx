@@ -13,17 +13,30 @@ function App() {
   const [type, setType] = useState('pdf');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  
+
+  const [toast, setToast] = useState(null);
+  const [uploadedName, setUploadedName] = useState('');
+  const [uploaded, setUploaded] = useState(false);
+
   const chatEndRef = useRef(null);
 
-  // Auto-scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [toast]);
+
   const handleUpload = async () => {
-    if (!file && !url) return alert("Please select a file or enter a URL");
-    
+    if (!file && !url) {
+      setToast({ type: 'error', msg: 'Please select a file or enter a URL' });
+      return;
+    }
+
     setUploading(true);
     const formData = new FormData();
     formData.append('type', type);
@@ -31,13 +44,19 @@ function App() {
     if (file) formData.append('file', file);
 
     try {
-      const res = await axios.post('http://localhost:8000/upload', formData);
-      alert(`Success: ${res.data.message}`);
+      await axios.post('http://localhost:8000/upload', formData);
+
+      const name = file ? file.name : url;
+      setUploadedName(name);
+      setUploaded(true);
+      setToast({ type: 'success', msg: 'Uploaded successfully' });
+
       setFile(null);
       setUrl('');
     } catch (err) {
-      alert("Error uploading file. Check backend console.");
+      setToast({ type: 'error', msg: 'Error uploading file. Check backend.' });
     }
+
     setUploading(false);
   };
 
@@ -56,21 +75,29 @@ function App() {
     try {
       const res = await axios.post('http://localhost:8000/chat', formData);
       setMessages([...newMsgs, { role: 'ai', content: res.data.answer }]);
-    } catch (err) {
-      setMessages([...newMsgs, { role: 'ai', content: "Sorry, I encountered an error connecting to the server." }]);
+    } catch {
+      setMessages([...newMsgs, { role: 'ai', content: "Server error. Try again." }]);
     }
+
     setLoading(false);
   };
 
   return (
     <div className="app-container">
-      {/* Sidebar - Knowledge Base */}
+
+      {toast && (
+        <div className={`toast ${toast.type}`}>
+          {toast.msg}
+        </div>
+      )}
+
       <div className="sidebar">
         <h2><FaRobot /> Knowledge Base</h2>
         <p className="subtitle">Feed your AI context here.</p>
-        
+
         <div className="upload-section">
           <label>Source Type</label>
+
           <div className="type-selector">
             <button className={type === 'pdf' ? 'active' : ''} onClick={() => setType('pdf')}><FaFilePdf /> PDF</button>
             <button className={type === 'doc' ? 'active' : ''} onClick={() => setType('doc')}><FaFileWord /> Doc</button>
@@ -79,29 +106,41 @@ function App() {
           </div>
 
           {type === 'video' ? (
-            <input 
-              type="text" 
-              className="input-field" 
-              placeholder="Paste YouTube Link..." 
+            <input
+              type="text"
+              className="input-field"
+              placeholder="Paste YouTube Link..."
               value={url}
-              onChange={(e) => setUrl(e.target.value)} 
+              onChange={(e) => setUrl(e.target.value)}
+              disabled={uploaded}
             />
           ) : (
             <div className="file-input-wrapper">
-              <input type="file" id="file-upload" onChange={(e) => setFile(e.target.files[0])} />
+              <input
+                type="file"
+                id="file-upload"
+                onChange={(e) => setFile(e.target.files[0])}
+                disabled={uploaded}
+              />
               <label htmlFor="file-upload" className="file-label">
                 {file ? file.name : "Choose File..."} <FaFileUpload />
               </label>
             </div>
           )}
 
-          <button onClick={handleUpload} disabled={uploading} className="upload-btn">
-            {uploading ? 'Processing...' : 'Upload & Process'}
-          </button>
+          {uploaded ? (
+            <div className="uploaded-info">
+              <span>Uploaded:</span>
+              <div className="uploaded-name">{uploadedName}</div>
+            </div>
+          ) : (
+            <button onClick={handleUpload} disabled={uploading} className="upload-btn">
+              {uploading ? 'Processing...' : 'Upload & Process'}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Main Chat Area */}
       <div className="chat-area">
         <div className="chat-header">
           <h3>Multimodal RAG Assistant</h3>
@@ -113,20 +152,24 @@ function App() {
               <div className="avatar">
                 {m.role === 'ai' ? <FaRobot /> : <FaUser />}
               </div>
-              <div className="bubble">
-                {m.content}
-              </div>
+              <div className="bubble">{m.content}</div>
             </div>
           ))}
-          {loading && <div className="message ai"><div className="bubble">Thinking...</div></div>}
+
+          {loading && (
+            <div className="message ai">
+              <div className="bubble">Thinking...</div>
+            </div>
+          )}
+
           <div ref={chatEndRef} />
         </div>
 
         <form className="input-area" onSubmit={handleChat}>
-          <input 
-            value={query} 
-            onChange={(e) => setQuery(e.target.value)} 
-            placeholder="Ask something about your documents..." 
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Ask something about your documents..."
           />
           <button type="submit" disabled={loading}>
             <FaPaperPlane />
