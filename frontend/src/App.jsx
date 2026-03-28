@@ -1,6 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { FaPaperPlane, FaFileUpload, FaYoutube, FaFilePdf, FaFileWord, FaImage, FaRobot, FaUser } from 'react-icons/fa';
+import { 
+  FaPaperPlane, 
+  FaFileUpload, 
+  FaYoutube, 
+  FaFilePdf, 
+  FaFileWord, 
+  FaImage, 
+  FaRobot, 
+  FaUser,
+  FaVolumeUp // Added an icon for Narration
+} from 'react-icons/fa';
 import './App.css';
 
 function App() {
@@ -17,6 +27,9 @@ function App() {
   const [toast, setToast] = useState(null);
   const [uploadedName, setUploadedName] = useState('');
   const [uploaded, setUploaded] = useState(false);
+  
+  // Added state to hold narration chapters
+  const [chapters, setChapters] = useState([]);
 
   const chatEndRef = useRef(null);
 
@@ -39,22 +52,30 @@ function App() {
 
     setUploading(true);
     const formData = new FormData();
-    formData.append('type', type);
-    if (url) formData.append('url', url);
-    if (file) formData.append('file', file);
-
+    
     try {
-      await axios.post('http://localhost:8000/upload', formData);
+      // Branch logic based on whether we are doing Narration or standard RAG upload
+      if (type === 'narration') {
+        formData.append('file', file);
+        const response = await axios.post('http://localhost:8000/document-narration/narrate_pdf', formData);
+        setChapters(response.data.chapters);
+        setToast({ type: 'success', msg: 'Narration generated successfully!' });
+      } else {
+        formData.append('type', type);
+        if (url) formData.append('url', url);
+        if (file) formData.append('file', file);
+        await axios.post('http://localhost:8000/upload', formData);
+        setToast({ type: 'success', msg: 'Uploaded successfully' });
+      }
 
       const name = file ? file.name : url;
       setUploadedName(name);
       setUploaded(true);
-      setToast({ type: 'success', msg: 'Uploaded successfully' });
-
       setFile(null);
       setUrl('');
     } catch (err) {
-      setToast({ type: 'error', msg: 'Error uploading file. Check backend.' });
+      console.error(err);
+      setToast({ type: 'error', msg: 'Error processing file. Check backend.' });
     }
 
     setUploading(false);
@@ -84,7 +105,6 @@ function App() {
 
   return (
     <div className="app-container">
-
       {toast && (
         <div className={`toast ${toast.type}`}>
           {toast.msg}
@@ -103,6 +123,8 @@ function App() {
             <button className={type === 'doc' ? 'active' : ''} onClick={() => setType('doc')}><FaFileWord /> Doc</button>
             <button className={type === 'image' ? 'active' : ''} onClick={() => setType('image')}><FaImage /> OCR</button>
             <button className={type === 'video' ? 'active' : ''} onClick={() => setType('video')}><FaYoutube /> Video</button>
+            {/* Added Narration Button directly into the selector */}
+            <button className={type === 'narration' ? 'active' : ''} onClick={() => setType('narration')}><FaVolumeUp /> Narration</button>
           </div>
 
           {type === 'video' ? (
@@ -132,11 +154,49 @@ function App() {
             <div className="uploaded-info">
               <span>Uploaded:</span>
               <div className="uploaded-name">{uploadedName}</div>
+              
+              {/* Added a button to clear the current upload and start over if needed */}
+              <button 
+                className="upload-btn" 
+                style={{marginTop: '10px', backgroundColor: '#555'}} 
+                onClick={() => {
+                  setUploaded(false);
+                  setChapters([]);
+                }}
+              >
+                Upload Another
+              </button>
             </div>
           ) : (
             <button onClick={handleUpload} disabled={uploading} className="upload-btn">
               {uploading ? 'Processing...' : 'Upload & Process'}
             </button>
+          )}
+
+          {/* Display Narration Chapters in the sidebar if they exist */}
+          {chapters.length > 0 && (
+            <div className="chapters-container" style={{ marginTop: '20px', textAlign: 'left' }}>
+              <h3 style={{ fontSize: '1rem', marginBottom: '10px', borderBottom: '1px solid #444', paddingBottom: '5px' }}>
+                Generated Chapters:
+              </h3>
+              <ul style={{ paddingLeft: '20px', fontSize: '0.9rem', color: '#ddd' }}>
+                {chapters.map((chapter, index) => (
+                  <li key={index} style={{ marginBottom: '8px' }}>
+                    {chapter}
+                    <button
+                      className="play-audio-btn"
+                      style={{ marginLeft: '10px', cursor: 'pointer' }}
+                      onClick={() => {
+                        const audio = new Audio(`http://localhost:8000/static/audio/chapter_${index + 1}.mp3`);
+                        audio.play();
+                      }}
+                    >
+                      <FaVolumeUp />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       </div>

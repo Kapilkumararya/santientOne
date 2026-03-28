@@ -4,10 +4,12 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from google import genai
+from fastapi.staticfiles import StaticFiles
 
 from ingest import process_image, process_pdf, process_doc, process_video_link
 from rag import add_to_vector_store, query_vector_store
-
+from daily_tasks_service import app as daily_tasks_app
+from document_narration_service import app as document_narration_app
 
 # ---------------- LOAD ENV ----------------
 load_dotenv()
@@ -23,15 +25,6 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 print("Gemini client initialized")
 
-# DEBUG: list available models for your API key
-try:
-    print("\nAvailable Gemini models:")
-    for m in client.models.list():
-        print("-", m.name)
-except Exception as e:
-    print("Model listing failed:", e)
-
-
 # ---------------- FASTAPI ----------------
 app = FastAPI()
 
@@ -44,6 +37,13 @@ app.add_middleware(
 )
 
 os.makedirs("storage", exist_ok=True)
+
+# Mount the microservices
+app.mount("/daily-tasks", daily_tasks_app)
+app.mount("/document-narration", document_narration_app)
+
+# Serve static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # ---------------- UPLOAD ----------------
