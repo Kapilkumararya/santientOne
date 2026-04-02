@@ -1,23 +1,73 @@
-# Multimodal Chatbot
+# Multimodal AI Chatbot (RAG + Document Intelligence)
 
-## Project Overview
-The Multimodal Chatbot is a comprehensive application designed to handle various tasks, including daily task management, document narration, and retrieval-augmented generation (RAG). It features a backend built with Python and a frontend developed using modern JavaScript frameworks.
+## Overview
 
-## Features
-### Backend
-- **Daily Tasks Service**: Manages and processes daily tasks.
-- **Document Narration Service**: Converts documents into narrated audio.
-- **Ingestion Service**: Handles data ingestion and preprocessing.
-- **RAG Service**: Implements retrieval-augmented generation for intelligent responses.
+The **Multimodal AI Chatbot** is a full-stack intelligent system designed to process and interact with multiple data modalities, including text and documents. It integrates **Retrieval-Augmented Generation (RAG)** with document narration capabilities to deliver context-aware, high-quality responses.
 
-### Frontend
-- **Interactive UI**: A user-friendly interface for interacting with the chatbot.
-- **Modern Design**: Built with React and styled for a seamless user experience.
+The system is engineered with a modular backend and a responsive frontend, enabling scalable AI-driven applications such as document assistants, knowledge bots, and automation tools.
+
+---
+
+## Core Capabilities
+
+### Backend Services (Python + FastAPI Architecture)
+
+* **RAG (Retrieval-Augmented Generation) Engine**
+
+  * Context-aware response generation using vector similarity search
+  * FAISS-powered dense retrieval
+  * Supports semantic querying over ingested data
+
+* **Document Narration Service**
+
+  * Converts textual documents into natural-sounding audio
+  * Useful for accessibility and content consumption
+
+* **Data Ingestion Pipeline**
+
+  * Preprocesses and embeds documents
+  * Stores vector representations in FAISS index
+  * Supports scalable knowledge base updates
+
+---
+
+### Frontend (React + Vite)
+
+* **Interactive Chat Interface**
+
+  * Real-time communication with backend APIs
+  * Clean and minimal UX optimized for productivity
+
+* **Modern UI/UX**
+
+  * Built using React with Vite for fast performance
+  * Component-based scalable architecture
+
+---
+
+## System Architecture
+
+```
+User (Frontend - React)
+        ↓
+API Layer (FastAPI Backend)
+        ↓
+RAG Pipeline
+  ├── Embedding Model
+  ├── FAISS Vector DB
+  └── LLM Response Generator
+        ↓
+Additional Services
+  ├── Document Narration
+  └── Ingestion Pipeline
+```
+
+---
 
 ## Project Structure
+
 ```
 backend/
-  daily_tasks_service.py
   document_narration_service.py
   ingest.py
   main.py
@@ -28,85 +78,158 @@ backend/
   storage/
     vector_db/
       faiss_index/
+
 frontend/
-  eslint.config.js
   index.html
   package.json
-  README.md
   vite.config.js
   public/
   src/
-    App.css
     App.jsx
-    index.css
     main.jsx
     assets/
+    styles/
 ```
 
-## Prerequisites
-- Python 3.9 or higher
-- Node.js 16 or higher
-- FAISS for vector database indexing
+---
 
-## Setup Instructions
+## Tech Stack
+
 ### Backend
-1. Navigate to the `backend` directory:
-   ```bash
-   cd backend
-   ```
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv .venv
-   & .venv\Scripts\Activate.ps1  # For Windows
-   source .venv/bin/activate       # For macOS/Linux
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Run the backend services:
-   ```bash
-   python main.py
-   ```
+
+* Python (FastAPI)
+* FAISS (Vector Database)
+* LLM Integration (API-based or local)
+* Text-to-Speech (TTS)
 
 ### Frontend
-1. Navigate to the `frontend` directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+
+* React.js
+* Vite
+* JavaScript (ES6+)
+
+---
+
+## Prerequisites
+
+* Python ≥ 3.9
+* Node.js ≥ 16
+* FAISS installed (CPU/GPU version)
+
+---
+
+## Installation & Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/multimodal-chatbot.git
+cd multimodal-chatbot
+```
+
+---
+
+### 2. Backend Setup
+
+```bash
+cd backend
+python -m venv .venv
+```
+
+#### Activate Environment
+
+* Windows:
+
+```bash
+.venv\\Scripts\\activate
+```
+
+* macOS/Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+#### Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+#### Run Backend
+
+```bash
+python main.py
+```
+
+---
+
+### 3. Frontend Setup
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
 
 ## Usage
-- Access the frontend at `http://localhost:3000`.
-- Interact with the chatbot for various tasks such as document narration and task management.
+
+* Open: **[http://localhost:3000](http://localhost:3000)**
+* Features available:
+
+  * Ask contextual questions (RAG)
+  * Upload/process documents
+  * Generate narrated audio from text
+
+---
+
+## Key Highlights (For Recruiters / Freelancing)
+
+* End-to-end **AI system design (frontend + backend + ML pipeline)**
+* Production-style **RAG implementation using FAISS**
+* Modular microservice-like backend structure
+* Real-world use case: **AI document assistant**
+* Strong foundation for:
+
+  * SaaS AI tools
+  * Knowledge base assistants
+  * AI automation systems
+
+---
+
+## Future Enhancements
+
+* Streaming responses (WebSockets)
+* Multi-file ingestion (PDF, DOCX, Web URLs)
+* Authentication & user sessions
+* Cloud deployment (AWS / GCP)
+* Vector DB upgrade (Pinecone / Weaviate)
+* Agentic workflows (tool-calling agents)
+
+---
 
 ## Contributing
-1. Fork the repository.
-2. Create a new branch for your feature:
-   ```bash
-   git checkout -b feature-name
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add new feature"
-   ```
-4. Push to the branch:
-   ```bash
-   git push origin feature-name
-   ```
-5. Create a pull request.
+
+```bash
+git checkout -b feature/your-feature
+git commit -m "Add: your feature"
+git push origin feature/your-feature
+```
+
+Then open a Pull Request.
+
+---
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
-- [FAISS](https://github.com/facebookresearch/faiss) for vector database indexing.
-- [React](https://reactjs.org/) for the frontend framework.
-- [Vite](https://vitejs.dev/) for the build tool.
+MIT License — free to use and modify.
+
+---
+
+## Acknowledgements
+
+* FAISS (Meta AI Research)
+* React Ecosystem
+* Vite Build Tool
