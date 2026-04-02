@@ -158,7 +158,6 @@ function App() {
               {/* Added a button to clear the current upload and start over if needed */}
               <button 
                 className="upload-btn" 
-                style={{marginTop: '10px', backgroundColor: '#555'}} 
                 onClick={() => {
                   setUploaded(false);
                   setChapters([]);
@@ -175,7 +174,7 @@ function App() {
 
           {/* Display Narration Chapters in the sidebar if they exist */}
           {chapters.length > 0 && (
-            <div className="chapters-container" style={{ marginTop: '20px', textAlign: 'left' }}>
+            <div className="chapters-container" >
               <h3 style={{ fontSize: '1rem', marginBottom: '10px', borderBottom: '1px solid #444', paddingBottom: '5px' }}>
                 Generated Chapters:
               </h3>
