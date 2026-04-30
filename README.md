@@ -233,3 +233,7 @@ MIT License — free to use and modify.
 * FAISS (Meta AI Research)
 * React Ecosystem
 * Vite Build Tool
+
+## Author
+
+Kapil Kumar Arya
